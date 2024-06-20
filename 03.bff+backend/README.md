@@ -119,11 +119,24 @@ export class User {
 
 リゾルバーは以下のようになります。
 
-例えば、以下のようなクエリがあるとき、
+例えば、以下のようなクエリ・ミューテーションがあるとき、
 
 ```gql
 type Query {
     users(page: Int, size: Int, sort: [String!]): [User!]!
+}
+
+type Mutation {
+  createUser(user: CreateUserInput!): User!
+}
+
+input CreateUserInput {
+  id: String!
+  firstName: String!
+  lastName: String!
+  age: Int!
+  email: String!
+  companyCode: String!
 }
 ```
 
@@ -155,6 +168,29 @@ export class UsersResolver {
             map((v) => v._embedded.appUsers),
         );
     }
+
+    @Query(() => User, { nullable: true })
+    public findUserById(@Args('id') id: string): Observable<EntityModelAppUser> {
+        return this.userService
+        .getItemResourceAppuserGet(id)
+        .pipe(map((res) => res.data));
+    }
+
+    @Mutation(() => User)
+    public createUser(
+      @Args('user') user: CreateUserInput,
+    ): Observable<EntityModelAppUser> {
+      return this.userService
+        .postCollectionResourceAppuserPost({
+          userId: user.id,
+          age: user.age,
+          companyCode: user.companyCode,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        })
+        .pipe(map((res) => res.data));
+    }
 }
 ```
 
@@ -171,6 +207,32 @@ export class UserArgs {
     size?: number;
     @Field(() => [String], { nullable: true })
     sort?: Array<string>;
+}
+```
+
+CreateUserArgsの実装(`bff/src/graphql/users/models/createUser.input.ts`)
+
+
+```ts
+import { Field, InputType, Int } from '@nestjs/graphql';
+import { IsEmail, MaxLength } from 'class-validator';
+
+@InputType()
+export class CreateUserInput {
+  @Field(() => String)
+  @MaxLength(6, { message: 'idは6桁までで設定して下さい。' })
+  id: string;
+  @Field(() => String)
+  firstName: string;
+  @Field(() => String)
+  lastName: string;
+  @Field(() => Int)
+  age: number;
+  @Field(() => String)
+  @IsEmail({}, { message: 'Emailの形式が正しくありません。' })
+  email: string;
+  @Field(() => String)
+  companyCode: string;
 }
 ```
 
@@ -255,6 +317,8 @@ erDiagram
 1. バックエンド、BFFともに起動している状態で`http://localhost:3000/graphql`にアクセスする。
 2. 以下のクエリを入力してリクエスト
 
+## クエリ
+
 ```gql
 {
   users {
@@ -277,6 +341,30 @@ erDiagram
     id
     name
     users {
+      id
+      name
+    }
+  }
+}
+```
+
+## mutation
+
+```gql
+mutation {
+  createUser(
+    user: {
+      id: "u999"
+      firstName: "Test-FristName"
+      lastName: "Test-LastName"
+      age: 30
+      email: "Test-Email@example.com"
+      companyCode: "com001"
+    }
+  ) {
+    id
+    name
+    company {
       id
       name
     }
