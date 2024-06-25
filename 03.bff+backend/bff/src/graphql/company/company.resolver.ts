@@ -26,7 +26,7 @@ export class CompanyResolver {
     public users(
         @Parent() parent: EntityModelCompany,
     ): Observable<EntityModelAppUser[]> {
-        return this.service.executeSearchAppuserGet(parent.companyId).pipe(
+        return this.service.executeSearchAppuserGet1(parent.companyId).pipe(
             map((res) => res.data),
             map((v) => v._embedded.appUsers),
         );
