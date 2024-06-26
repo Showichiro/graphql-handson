@@ -37,7 +37,7 @@ cd 03.bff+backend/backend
 ```sh
 # リポジトリルートから
 cd 03.bff+backend/bff
-pnpm dev
+pnpm start:dev
 ```
 
 ## バックエンド
