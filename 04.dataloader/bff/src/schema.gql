@@ -1,0 +1,40 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  id: String!
+  name: String!
+  company: Company!
+}
+
+type Company {
+  id: String!
+  name: String!
+  users: [User!]!
+}
+
+type CountByCompany {
+  companyCode: String!
+  count: Int!
+}
+
+type Query {
+  companies(page: Int, size: Int, sort: [String!]): [Company!]!
+  users(page: Int, size: Int, sort: [String!]): [User!]!
+  findUserById(id: String!): User
+  userCountByCompanyCode: [CountByCompany!]!
+}
+
+type Mutation {
+  createUser(user: CreateUserInput!): User!
+}
+
+input CreateUserInput {
+  id: String!
+  firstName: String!
+  lastName: String!
+  age: Int!
+  email: String!
+  companyCode: String!
+}
